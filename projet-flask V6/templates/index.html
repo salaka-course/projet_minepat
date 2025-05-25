@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div id="layoutSidenav_content">
+    <main class="ps-md-5 ps-3 mt-5">
+        <div class="container py-5">
+            <p class="text-center text-muted mb-5 fw-bold">Historique des series Chronologiques</p>
+            <h1 class="mb-4 text-center text-uppercase fw-bold">Secteurs Réels</h1>
+        
+
+            <div class="row justify-content-center">
+                <!-- PIB DEMANDE -->
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-primary text-white fw-bold">
+                            <i class="fas fa-folder-open me-2"></i> PIB Demande
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="/pib_a_prix_constant/" class="btn btn-outline-primary fw-bold">PIB à Prix Constant</a>
+                                <a href="/pib_nominal/" class="btn btn-outline-primary fw-bold">PIB Nominal</a>
+                                <a href="/taux_de_croissance/" class="btn btn-outline-primary fw-bold">Taux de Croissance</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PIB OFFRE -->
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-warning text-white fw-bold">
+                            <i class="fas fa-folder-open me-2"></i> PIB Offre
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="/pib_offre_prix_constant/" class="btn btn-outline-warning fw-bold text-dark">PIB à Prix Constant</a>
+                                <a href="pib_offre_pib_nominal/" class="btn btn-outline-warning fw-bold text-dark">PIB Nominal</a>
+                                <a href="/pib_offre_taux_de_croissance/" class="btn btn-outline-warning fw-bold text-dark">Taux de Croissance</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              
+                <!-- PIB OFFRE -->
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-success text-white fw-bold">
+                            <i class="fas fa-folder-open me-2"></i> PRIX
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="/prix_deflateur_sectoriel/" class="btn btn-outline-success fw-bold text-dark">DEFLATEUR SECTORIEL</a>
+                                <a href="/prix_petrole_et_gaz/" class="btn btn-outline-success fw-bold text-dark">PETROLE ET GAZ</a>
+                                <a href="/prix_prix_des_emplois/" class="btn btn-outline-success fw-bold text-dark">PRIX DES EMPLOIS</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="container py-5">
+            <h1 class="mb-4 text-center text-uppercase fw-bold">AUTRES</h1>
+
+
+            <div class="row justify-content-center">
+                <!-- PIB DEMANDE -->
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm border-0">
+                        
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="/tofe/" class="btn btn-outline-primary fw-bold">TOFE</a>
+                                <a href="/tofe_ratio/" class="btn btn-outline-primary fw-bold">TOFE EN RATIO</a>
+                               
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PIB OFFRE -->
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm border-0">
+                        
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="/bdp/" class="btn btn-outline-warning fw-bold text-dark">BDP</a>
+                                <a href="/bdp_ratio/" class="btn btn-outline-warning fw-bold text-dark">BDP EN RATIO</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              
+                <!-- PIB OFFRE -->
+                <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm border-0">
+                     
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="/dette_interieure/" class="btn btn-outline-success fw-bold text-dark">DETTE INTERIEURE</a>
+                                <a href="/dette_exterieure/" class="btn btn-outline-success fw-bold text-dark">DETTE EXTERIEURE</a>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                 
+                 <!-- PIB OFFRE -->
+                 <div class="col-md-5 mb-4">
+                    <div class="card shadow-sm border-0">
+                     
+                        <div class="card-body">
+                            <div class="d-grid gap-3">
+                                <a href="/monnaie/" class="btn btn-outline-danger fw-bold text-dark">MONNAIE</a>
+                                <a href="/monnaie_ratio/" class="btn btn-outline-danger fw-bold text-dark">MONNAIE EN RATIO</a>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    
+</div>
+
+{% endblock content %}

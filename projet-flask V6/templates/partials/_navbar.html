@@ -1,0 +1,134 @@
+<body class="sb-nav-fixed">
+  <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark justify-content-between px-3">
+      <!-- Sidebar Toggle (hamburger) -->
+      <button class="btn btn-link btn-sm me-2" id="sidebarToggle">
+        <i class="fas fa-bars text-white"></i>
+      </button>
+    
+      <!-- Titre centré dans la navbar -->
+
+<div class="flex-grow-1 d-flex justify-content-center">
+  <span class="navbar-brand m-0 fw-bold text-uppercase d-inline-block text-truncate w-75 text-center px-2"
+        title="SYSTÈME INTÉGRÉ DE SURVEILLANCE, DE PRÉVISION ET DE CONTRÔLE DES RISQUES ÉCONOMIQUES"
+        style="font-size: 20px;">
+    <img src="{{ url_for('static', filename='images/logo.jpg') }}" 
+         alt="Logo" 
+         style="width: 47px; height: 47px; margin-right: 10px; border-radius: 50%;">
+    SYSTÈME INTÉGRÉ DE SURVEILLANCE,DE PRÉVISION ET DE CONTRÔLE DES RISQUES ÉCONOMIQUES
+  </span>
+</div>
+
+<style>
+  @media (max-width: 992px) {
+    .navbar-brand.text-truncate.w-75 {
+      max-width: 70vw !important;
+    }
+  }
+</style>
+
+
+
+
+
+    <!-- Navbar User Dropdown -->
+    <ul class="navbar-nav ms-auto me-3">
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="fas fa-user-circle"></i>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+            <!--
+          <li><hr class="dropdown-divider" /></li> -->
+          <li><a class="dropdown-item" href="#">Déconnexion</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Sidenav -->
+  <div id="layoutSidenav">
+    <div id="layoutSidenav_nav">
+      <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+        <div class="sb-sidenav-menu">
+          <div class="nav">
+            <div class="sb-sidenav-menu-heading">Core</div>
+            <a class="nav-link" href="/">
+              <div class="sb-nav-link-icon"><i class="fas fa-home"></i></div>
+              Acceuil
+            </a>
+
+            <div class="sb-sidenav-menu-heading">Interface</div>
+           
+
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseServices" aria-expanded="false" aria-controls="collapseServices">
+              <div class="sb-nav-link-icon"><i class="fas fa-warning"></i></div>
+              Alerte (stress financier)
+              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+            </a>
+            <div class="collapse" id="collapseServices" data-bs-parent="#sidenavAccordion">
+              <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="layout-static.html">Indicateurs de vulnérabilité</a>
+                <a class="nav-link" href="layout-sidenav-light.html">Scénario-choc-visualisation</a>
+              </nav>
+            </div>
+
+            <a class="nav-link" href="/">
+              <div class="sb-nav-link-icon"><i class="fas fa-database"></i></div>
+              Données
+            </a>
+
+            <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseRecherches" aria-expanded="false" aria-controls="collapseRecherches">
+              <div class="sb-nav-link-icon"><i class="fas fa-search"></i></div>
+              Recherches avancées
+              <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+            </a>
+            <div class="collapse" id="collapseRecherches" data-bs-parent="#sidenavAccordion">
+              <nav class="sb-sidenav-menu-nested nav">
+                <a class="nav-link" href="login.html">Web Crapping</a>
+               
+                <a class="nav-link" href="#">Acces au archives</a>
+              </nav>
+            </div>
+
+         
+
+            <a class="nav-link" href="/">
+              <div class="sb-nav-link-icon"><i class="fas fa-microscope"></i></div>
+              Méthode de simulation des chocs
+            </a>
+
+           
+            <a class="nav-link" href="/">
+              <div class="sb-nav-link-icon"><i class="fas fa-paper-plane"></i></div>
+              Espace requetes
+            </a>
+
+            <a class="nav-link" href="/">
+              <div class="sb-nav-link-icon"><i class="fa fa-info-circle"></i></div>
+              A propos
+            </a>
+          </div>
+        </div>
+        <div class="sb-sidenav-footer">
+          <div class="small">Copyright &copy;DAPE 2025</div>
+          MINEPAT
+      </div>
+      </nav>
+    </div>
+  </div>
+ 
+
+  <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          const toggleButton = document.getElementById("sidebarToggle");
+          const body = document.body;
+          if (toggleButton) {
+          toggleButton.addEventListener("click", function (e) {
+              e.preventDefault();
+              body.classList.toggle("sb-sidenav-toggled");
+          });
+          }
+      });
+  </script>
+
+</body>

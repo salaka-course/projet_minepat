@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+flask = "*"
+flask-sqlalchemy = "*"
+matplotlib = "*"
+flask-migrate = "*"
+pdfkit = "*"
+pandas = "*"
+openpyxl = "*"
+weasyprint = "*"
+plotly = "*"
+kaleido = "*"
+psutil = "*"
+reportlab = "*"
+xlsxwriter = "*"
+wtforms = "*"
+flask-wtf = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.12"

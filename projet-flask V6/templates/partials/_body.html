@@ -1,0 +1,246 @@
+<div class="graph-container shadow-sm p-5 mb-5">
+    <h1 class="mt-5">{{ file_name }}</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">{{ directory_name }} / {{ file_name }}</li>
+    </ol>
+
+    <form method="POST" id="filterForm" class="mb-4">
+        <input type="hidden" name="page" value="1">
+        <input type="hidden" name="file_path" value="{{ file_path }}">
+
+        <div class="mb-3">
+            <label class="form-label">Type de graphique :</label>
+            <select class="form-select" name="chart_type">
+                <option value="both" {% if chart_type == "both" %}selected{% endif %}>Ligne + Barres</option>
+                <option value="line" {% if chart_type == "line" %}selected{% endif %}>Ligne</option>
+                <option value="bar" {% if chart_type == "bar" %}selected{% endif %}>Barres</option>
+            </select>
+        </div>
+
+        <h4>Sélectionnez les catégories :</h4>
+        <div class="mb-2">
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="toggleCheckboxes(true)">Tout cocher</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="toggleCheckboxes(false)">Tout décocher</button>
+        </div>
+
+        <div class="row">
+            {% for category in categories %}
+            <div class="form-check col-md-3">
+                <input class="form-check-input" type="checkbox" name="selected_categories" value="{{ category }}"
+                       id="cat_{{ loop.index }}" {% if category in selected_categories %}checked{% endif %}>
+                <label class="form-check-label" for="cat_{{ loop.index }}">{{ category }}</label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Afficher les graphiques</button>
+        <button type="button" onclick="downloadPDF()" class="btn btn-danger mt-3 ms-2">
+            <i class="fas fa-file-pdf"></i>
+            Générer un rapport PDF
+        </button>
+        <a href="{{ url_for('telecharger_excel', template_name=template_name, categories=selected_categories) }}" 
+                class="btn btn-success mt-3 ms-2 text-white" 
+                style="text-decoration: none;">
+                    <i class="fas fa-file-excel me-1"></i>Télécharger les données
+        </a>
+    </form>
+    
+
+    {% if graphs %}
+        {% for graph in graphs %}
+        <div class="graph-container card shadow-sm p-3 mb-5">
+            <div class="card-body">
+                {{ graph.html | safe }}
+
+                <h5 class="mt-4">Commentaires pour : <strong>{{ graph.graph_id | replace('_', ' ') | title }}</strong></h5>
+
+                <ul class="list-group mb-3">
+                    {% for task in tasks %}
+                        {% if task.graph_id == graph.graph_id %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ task.name }}
+                            <form action="{{ url_for('delete_comment',template_name=template_name, id=task.id) }}" method="POST" class="d-inline">
+                                <input type="hidden" name="page" value="{{ current_page }}">
+                                <button type="submit" class="btn btn-sm btn-outline"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+                <form action="{{ url_for('add_comment', template_name= template_name) }}" method="POST" class="d-flex gap-2">
+                    <input type="hidden" name="graph_id" value="{{ graph.graph_id }}">
+                    <input type="hidden" name="page" value="{{ current_page }}">
+                    <input type="text" name="name" class="form-control" placeholder="Ajouter un commentaire" required>
+                    <button type="submit" class="btn btn-success">Ajouter</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted">Aucune catégorie sélectionnée.</p>
+    {% endif %}
+
+    <div class="pagination mt-4 d-flex align-items-center gap-2">
+        {% if current_page > 1 %}
+        <form method="POST" class="d-inline">
+            {% for cat in selected_categories %}
+            <input type="hidden" name="selected_categories" value="{{ cat }}">
+            {% endfor %}
+            <input type="hidden" name="chart_type" value="{{ chart_type }}">
+            <input type="hidden" name="page" value="{{ current_page - 1 }}">
+            <button type="submit" class="btn btn-secondary">Précédent</button>
+        </form>
+        {% endif %}
+
+        <span class="mx-2">Page {{ current_page }} / {{ total_pages }}</span>
+
+        {% if current_page < total_pages %}
+        <form method="POST" class="d-inline">
+            {% for cat in selected_categories %}
+            <input type="hidden" name="selected_categories" value="{{ cat }}">
+            {% endfor %}
+            <input type="hidden" name="chart_type" value="{{ chart_type }}">
+            <input type="hidden" name="page" value="{{ current_page + 1 }}">
+            <button type="submit" class="btn btn-secondary">Suivant</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <div id="loading-spinner" style="display:none; text-align:center; margin-top: 20px;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Chargement...</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .plotly-graph-container {
+        width: 100%;
+        min-height: 400px;
+        margin-bottom: 20px;
+    }
+
+    /* Pour les petits écrans */
+    @media (max-width: 768px) {
+        .plotly-graph-container {
+            min-height: 300px;
+        }
+    }
+
+    /* Responsive iframe si tu utilises des graphiques via iframe */
+    .plotly-graph-container iframe {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 2 / 1; /* Optionnel : pour garder un ratio hauteur/largeur */
+    }
+</style>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+function toggleCheckboxes(state) {
+    const checkboxes = document.querySelectorAll('input[name="selected_categories"]');
+    checkboxes.forEach(cb => cb.checked = state);
+}
+
+document.querySelectorAll("form").forEach(form => {
+    form.addEventListener("submit", () => {
+        document.getElementById("loading-spinner").style.display = "block";
+    });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+    const pdfForm = document.querySelector('form[formaction*="generate_report_pdf"]');
+    const loadingSpinner = document.getElementById("loading-spinner");
+
+    if (pdfForm) {
+        pdfForm.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            loadingSpinner.style.display = "block";
+
+            const graphDivs = document.querySelectorAll(".graph-container .card");
+            const uploads = [];
+
+            for (let div of graphDivs) {
+                const graphId = div.querySelector("input[name='graph_id']")?.value ||
+                                div.querySelector("strong")?.innerText.toLowerCase().replace(/\s+/g, "_");
+
+                if (!graphId) continue;
+
+                const canvas = await html2canvas(div, { backgroundColor: "#fff", scale: 2 });
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+                const formData = new FormData();
+                formData.append("graph_id", graphId);
+                formData.append("image", blob, graphId + ".png");
+
+                uploads.push(fetch("/upload_image", {
+                    method: "POST",
+                    body: formData
+                }));
+            }
+
+            try {
+                await Promise.all(uploads);
+                pdfForm.submit();
+            } catch (err) {
+                alert("Erreur lors de la génération des images !");
+                console.error(err);
+            } finally {
+                loadingSpinner.style.display = "none";
+            }
+        });
+    }
+});
+</script>
+
+<!-- html2canvas -->
+<script>
+    function downloadPDF() {
+        const graphContainers = document.querySelectorAll(".graph-container.card");
+    
+        const promises = Array.from(graphContainers).map(container => {
+            return html2canvas(container).then(canvas => {
+                const imageData = canvas.toDataURL("image/png");
+                const graphId = container.querySelector("h5 strong")?.textContent || "graphique";
+                const comments = Array.from(container.querySelectorAll(".list-group-item"))
+                                      .map(li => li.firstChild.textContent.trim());
+    
+                return {
+                    graph_id: graphId,
+                    image_data: imageData,
+                    comments: comments
+                };
+            });
+        });
+    
+        Promise.all(promises).then(images => {
+            fetch("/generate_report_pdf_canvas/", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ images: images })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Échec de la génération du PDF");
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "rapport_graphiques.pdf";
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            })
+            .catch(error => {
+                alert(error.message);
+            });
+        });
+    }
+    </script>
