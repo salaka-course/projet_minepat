@@ -70,19 +70,20 @@ stages:
       condition: always()
 
     - task: SonarQubePrepare@7
-      displayName: "SonarQube — Préparer l'analyse"
+      displayName: "SonarQube — Preparer"
       inputs:
         SonarQube: "sonar-conn"
         scannerMode: CLI
-        configMode: file
-        configFile: "projet-flask V6/sonar-project.properties"
+        configMode: manual
+        cliProjectKey: "projet-flask-minepat"
+        cliProjectName: "Projet Flask MINEPAT"
         extraProperties: |
-          sonar.branch.name=
-          sonar.pullrequest.key=
-          sonar.pullrequest.branch=
-          sonar.pullrequest.base=
-          sonar.newCode.referenceBranch=
+          sonar.sources=projet-flask V6
+          sonar.tests=projet-flask V6/tests
+          sonar.python.coverage.reportPaths=projet-flask V6/coverage.xml
+          sonar.exclusions=**/static/**,**/templates/**,**/__pycache__/**,**/*.pyc,**/*.db
 
+          
     - task: SonarQubeAnalyze@7
       displayName: "SonarQube — Analyser"
 
