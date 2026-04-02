@@ -35,10 +35,10 @@ stages:
     - checkout: self
       fetchDepth: 0
 
-    - task: UsePythonVersion@0
-      displayName: "Python $(pythonVersion)"
-      inputs:
-        versionSpec: $(pythonVersion)
+    #- task: UsePythonVersion@0
+      #displayName: "Python $(pythonVersion)"
+     # inputs:
+      #  versionSpec: $(pythonVersion)
 
     - script: |
         python -m pip install --upgrade pip
