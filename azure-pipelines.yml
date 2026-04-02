@@ -78,6 +78,10 @@ stages:
         configFile: "projet-flask V6/sonar-project.properties"
         extraProperties: |
           sonar.branch.name=
+          sonar.pullrequest.key=
+          sonar.pullrequest.branch=
+          sonar.pullrequest.base=
+          sonar.newCode.referenceBranch=
 
     - task: SonarQubeAnalyze@7
       displayName: "SonarQube — Analyser"
