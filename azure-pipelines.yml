@@ -1,19 +1,177 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- main
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    exclude:
+      - k8s/**
+      - README.md
 
-pool:
-  vmImage: ubuntu-latest
+variables:
+  acrName:        minepat-acr
+  imageName:      projet-flask-minepat
+  resourceGroup:  rg-minepat
+  aksCluster:     minepat-aks
+  namespace:      minepat
+  pythonVersion:  "3.11"
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+stages:
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+# ══════════════════════════════════════
+# 🔍 STAGE 1 — QUALITE & SECURITE
+# ══════════════════════════════════════
+- stage: QualityAndSecurity
+  displayName: "🔍 Qualité & Sécurité"
+  jobs:
+
+  # ── Job 1 : Tests + SonarQube ──
+  - job: TestAndSonar
+    displayName: "Tests + SonarQube"
+    pool:
+      name: myagent
+    steps:
+
+    - checkout: self
+      fetchDepth: 0
+
+    - task: UsePythonVersion@0
+      displayName: "Python $(pythonVersion)"
+      inputs:
+        versionSpec: $(pythonVersion)
+
+    - script: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov flask-sqlalchemy flask-migrate
+      displayName: "Installer les dépendances"
+
+    - script: |
+        python -m pytest tests/ \
+          --cov=. \
+          --cov-report=xml:coverage.xml \
+          --cov-report=term-missing \
+          --junitxml=test-results.xml \
+          -v || true
+      displayName: "Lancer les tests + couverture"
+
+    - task: PublishTestResults@2
+      displayName: "Publier résultats tests"
+      inputs:
+        testResultsFormat: JUnit
+        testResultsFiles: "**/test-results.xml"
+      condition: always()
+
+    - task: PublishCodeCoverageResults@1
+      displayName: "Publier couverture de code"
+      inputs:
+        codeCoverageTool: Cobertura
+        summaryFileLocation: coverage.xml
+      condition: always()
+
+    - task: SonarQubePrepare@7
+      displayName: "SonarQube — Préparer l'analyse"
+      inputs:
+        SonarQube: "sonar-conn"
+        scannerMode: CLI
+        configMode: file
+
+    - task: SonarQubeAnalyze@7
+      displayName: "SonarQube — Analyser"
+
+    - task: SonarQubePublish@7
+      displayName: "SonarQube — Publier résultats"
+      inputs:
+        pollingTimeoutSec: "300"
+
+  # ── Job 2 : Snyk ──
+  - job: SnykScan
+    displayName: "Snyk — Scan sécurité"
+    pool:
+      name: myagent
+    steps:
+    - checkout: self
+    - script: echo "Snyk sera configuré après"
+      displayName: "Snyk — placeholder"
+
+# ══════════════════════════════════════
+# 🐳 STAGE 2 — BUILD & PUSH IMAGE
+# ══════════════════════════════════════
+- stage: Build
+  displayName: "🐳 Build & Push Docker"
+  dependsOn: QualityAndSecurity
+  condition: succeeded()
+  jobs:
+
+  - job: BuildAndPush
+    displayName: "Build + Push vers ACR"
+    pool:
+      name: myagent
+    steps:
+
+    - checkout: self
+
+    - task: Docker@2
+      displayName: "Build & Push image Docker"
+      inputs:
+        containerRegistry: "azure-conn-acr"
+        repository: $(imageName)
+        command: buildAndPush
+        Dockerfile: "**/dockerfile"
+        tags: |
+          $(Build.BuildId)
+          latest
+
+    - script: |
+        sed -i "s|image:.*|image: $(acrName).azurecr.io/$(imageName):$(Build.BuildId)|g" \
+          k8s/deployment.yaml
+        cat k8s/deployment.yaml | grep image:
+      displayName: "Mettre à jour le tag image dans deployment.yaml"
+
+    - task: PublishPipelineArtifact@1
+      displayName: "Publier manifests K8s"
+      inputs:
+        targetPath: k8s/
+        artifact: k8s-manifests
+
+# ══════════════════════════════════════
+# 🚀 STAGE 3 — DEPLOY via ArgoCD
+# ══════════════════════════════════════
+- stage: Deploy
+  displayName: "🚀 Deploy via ArgoCD"
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+
+  - job: SyncArgoCD
+    displayName: "ArgoCD Sync"
+    pool:
+      name: myagent
+    steps:
+
+    - checkout: self
+
+    - task: AzureCLI@2
+      displayName: "Connexion AKS + ArgoCD Sync"
+      inputs:
+        azureSubscription: "azure-conn-arm"
+        scriptType: bash
+        scriptLocation: inlineScript
+        inlineScript: |
+          set -e
+
+          az aks get-credentials \
+            --resource-group $(resourceGroup) \
+            --name $(aksCluster) \
+            --overwrite-existing
+
+          sed -i "s|image:.*|image: $(acrName).azurecr.io/$(imageName):$(Build.BuildId)|g" \
+            k8s/deployment.yaml
+
+          git config user.email "azuredevops@minepat.cm"
+          git config user.name "Azure DevOps Bot"
+          git add k8s/deployment.yaml
+          git diff --staged --quiet || git commit -m "ci: update image tag to $(Build.BuildId)"
+          git push origin HEAD:main
+
+          echo "✅ Manifest mis à jour — ArgoCD va synchroniser automatiquement"
