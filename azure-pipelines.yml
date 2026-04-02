@@ -76,6 +76,8 @@ stages:
         scannerMode: CLI
         configMode: file
         configFile: "projet-flask V6/sonar-project.properties"
+        extraProperties: |
+          sonar.branch.name=
 
     - task: SonarQubeAnalyze@7
       displayName: "SonarQube — Analyser"
