@@ -69,8 +69,15 @@ stages:
         summaryFileLocation: coverage.xml
       condition: always()
 
+    - script: |
+        echo "" >> "projet-flask V6/sonar-project.properties"
+        sed -i '/sonar.branch.name/d' "projet-flask V6/sonar-project.properties"
+      displayName: "Nettoyer proprietes branch"
+
     - task: SonarQubePrepare@7
       displayName: "SonarQube — Preparer"
+      env:
+        SONARQUBE_SCANNER_PARAMS: '{}'
       inputs:
         SonarQube: "sonar-conn"
         scannerMode: CLI
